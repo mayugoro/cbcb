@@ -1,0 +1,15 @@
+.vscode
+env
+.env
+tokens*
+__pycache__/
+.vscode/
+*.ipynb
+menu.txt
+play*
+api.key
+pg*
+refresh-tokens*
+ax.fp
+bookmark.json
+.venv
