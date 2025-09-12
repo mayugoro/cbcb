@@ -18,11 +18,11 @@ pkg install git -y
 ```
 3. Clone this repo
 ```
-git clone https://github.com/purplemashu/me-cli
+git clone https://github.com/mayugoro/my-bini.git
 ```
 4. Open the folder
 ```
-cd me-cli
+cd my-bini
 ```
 5. Setup
 ```
