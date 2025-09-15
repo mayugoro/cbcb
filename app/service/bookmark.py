@@ -1,6 +1,8 @@
 import os
-import json
 from typing import List, Dict
+from app.utils.sqlite_storage import storage
+
+print("🔖 Using SQLite storage for bookmarks")
 
 class Bookmark:
     _instance = None
@@ -14,28 +16,18 @@ class Bookmark:
     def __init__(self):
         if not self._initialized:
             self.packages: List[Dict] = []
-            self.filepath = "bookmark.json"
-
-            if os.path.exists(self.filepath):
-                self.load_bookmark()
-            else:
-                self._save([])  # create empty file
-
+            self.load_bookmark()
             self._initialized = True
 
-    def _save(self, data: List[Dict]):
-        """Helper to write JSON safely."""
-        with open(self.filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
-
     def load_bookmark(self):
-        """Load bookmarks from JSON file."""
-        with open(self.filepath, "r", encoding="utf-8") as f:
-            self.packages = json.load(f)
+        """Load bookmarks from SQLite storage."""
+        self.packages = storage.get_bookmarks()
 
     def save_bookmark(self):
-        """Save current bookmarks to JSON file."""
-        self._save(self.packages)
+        """Save current bookmarks to SQLite storage."""
+        # Note: Individual bookmarks are already saved via add_bookmark/remove_bookmark
+        # This method exists for compatibility but doesn't need to do anything
+        pass
 
     def add_bookmark(
         self,
@@ -45,26 +37,27 @@ class Bookmark:
         option_name: str,
     ) -> bool:
         """Add a bookmark if it does not already exist."""
+        # Check if bookmark already exists in SQLite
+        existing_bookmarks = storage.get_bookmarks()
         key = (family_code, variant_name, option_name)
 
         if any(
             (p["family_code"], p["variant_name"], p["option_name"]) == key
-            for p in self.packages
+            for p in existing_bookmarks
         ):
             print("Bookmark already exists.")
             return False
 
-        self.packages.append(
-            {
-                "family_code": family_code,
-                "is_enterprise": is_enterprise,
-                "variant_name": variant_name,
-                "option_name": option_name,
-            }
-        )
-        self.save_bookmark()
-        print("Bookmark added.")
-        return True
+        # Add to SQLite storage
+        success = storage.add_bookmark(family_code, is_enterprise, variant_name, option_name)
+        if success:
+            # Refresh local cache
+            self.packages = storage.get_bookmarks()
+            print("Bookmark added.")
+            return True
+        else:
+            print("Failed to add bookmark.")
+            return False
 
     def remove_bookmark(
         self,
@@ -74,19 +67,15 @@ class Bookmark:
         option_name: str,
     ) -> bool:
         """Remove a bookmark if it exists. Returns True if removed."""
-        for i, p in enumerate(self.packages):
-            if (
-                p["family_code"] == family_code
-                and p["is_enterprise"] == is_enterprise
-                and p["variant_name"] == variant_name
-                and p["option_name"] == option_name
-            ):
-                del self.packages[i]
-                self.save_bookmark()
-                print("Bookmark removed.")
-                return True
-        print("Bookmark not found.")
-        return False
+        success = storage.remove_bookmark_by_details(family_code, is_enterprise, variant_name, option_name)
+        if success:
+            # Refresh local cache
+            self.packages = storage.get_bookmarks()
+            print("Bookmark removed.")
+            return True
+        else:
+            print("Bookmark not found.")
+            return False
 
     def get_bookmarks(self) -> List[Dict]:
         """Return all bookmarks."""

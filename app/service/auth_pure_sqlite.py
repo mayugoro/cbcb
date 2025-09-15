@@ -161,9 +161,5 @@ class Auth:
             return self.refresh_access_token()
         return True
 
-    def get_active_tokens(self):
-        """Get active user tokens for API calls"""
-        return self.active_user["tokens"] if self.active_user else None
-
 # Global instance
 AuthInstance = Auth()

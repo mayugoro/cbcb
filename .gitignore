@@ -13,3 +13,9 @@ refresh-tokens*
 ax.fp
 bookmark.json
 .venv
+
+# database
+*.db
+*.sqlite3
+*.sqlite
+*.db-journal
