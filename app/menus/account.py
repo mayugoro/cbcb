@@ -2,6 +2,57 @@ from app.client.engsel import get_otp, submit_otp
 from app.menus.util import clear_screen, pause
 from app.service.auth import AuthInstance
 
+def normalize_phone_number(phone_number: str) -> str:
+    """
+    Normalize phone number to 628 format
+    Converts various formats to standard 628XXXXXXXXX format
+    """
+    # Remove all non-digit characters
+    phone_number = ''.join(filter(str.isdigit, phone_number))
+    
+    # Handle different starting patterns
+    if phone_number.startswith('628'):
+        # Already in correct format
+        return phone_number
+    elif phone_number.startswith('08'):
+        # Convert 08XXXXXXXXX to 628XXXXXXXXX
+        return '628' + phone_number[2:]
+    elif phone_number.startswith('8'):
+        # Convert 8XXXXXXXXX to 628XXXXXXXXX
+        return '628' + phone_number[1:]
+    elif phone_number.startswith('628'):
+        # Already correct
+        return phone_number
+    elif phone_number.startswith('62'):
+        # Handle 62XXXXXXXXX (missing 8)
+        if len(phone_number) >= 3 and phone_number[2] == '8':
+            return phone_number
+        else:
+            return '628' + phone_number[2:]
+    else:
+        # Default: assume it's local number, add 628
+        return '628' + phone_number
+
+def validate_phone_number(phone_number: str) -> bool:
+    """
+    Validate if phone number is valid after normalization
+    """
+    normalized = normalize_phone_number(phone_number)
+    
+    # Check if starts with 628
+    if not normalized.startswith('628'):
+        return False
+    
+    # Check length (628 + 8-11 digits = 11-14 total)
+    if len(normalized) < 11 or len(normalized) > 14:
+        return False
+    
+    # Check if all characters are digits
+    if not normalized.isdigit():
+        return False
+    
+    return True
+
 def show_login_menu():
     clear_screen()
     print("--------------------------")
@@ -17,35 +68,61 @@ def login_prompt(api_key: str):
     print("--------------------------")
     print("Login ke MyXL")
     print("--------------------------")
-    print("Masukan nomor XL Prabayar (Contoh 6281234567890):")
+    print("Masukan nomor XL Prabayar:")
+    print("Format yang didukung:")
+    print("  • 6281234567890")
+    print("  • 081234567890") 
+    print("  • 81234567890")
+    print("--------------------------")
     phone_number = input("Nomor: ")
 
-    if not phone_number.startswith("628") or len(phone_number) < 10 or len(phone_number) > 14:
-        print("Nomor tidak valid. Pastikan nomor diawali dengan '628' dan memiliki panjang yang benar.")
+    # Normalize phone number
+    normalized_number = normalize_phone_number(phone_number)
+    
+    # Validate normalized number
+    if not validate_phone_number(phone_number):
+        print(f"❌ Nomor tidak valid: {phone_number}")
+        print(f"📱 Format yang dinormalisasi: {normalized_number}")
+        print("💡 Pastikan nomor XL yang valid (8-11 digit setelah 628)")
+        print("\nContoh format yang benar:")
+        print("  • 085946492065 → 6285946492065")
+        print("  • 6285946492065 → 6285946492065")
+        pause()
         return None
 
+    # Show conversion if different
+    if phone_number != normalized_number:
+        print(f"📱 Nomor dikonversi: {phone_number} → {normalized_number}")
+
     try:
-        subscriber_id = get_otp(phone_number)
+        print(f"🔄 Mengirim OTP ke nomor: {normalized_number}")
+        subscriber_id = get_otp(normalized_number)
         if not subscriber_id:
+            print("❌ Gagal mengirim OTP. Periksa nomor dan coba lagi.")
+            pause()
             return None
-        print("OTP Berhasil dikirim ke nomor Anda.")
+            
+        print("✅ OTP Berhasil dikirim ke nomor Anda.")
         
         otp = input("Masukkan OTP yang telah dikirim: ")
         if not otp.isdigit() or len(otp) != 6:
-            print("OTP tidak valid. Pastikan OTP terdiri dari 6 digit angka.")
+            print("❌ OTP tidak valid. Pastikan OTP terdiri dari 6 digit angka.")
             pause()
             return None
         
-        tokens = submit_otp(api_key, phone_number, otp)
+        tokens = submit_otp(api_key, normalized_number, otp)
         if not tokens:
-            print("Gagal login. Periksa OTP dan coba lagi.")
+            print("❌ Gagal login. Periksa OTP dan coba lagi.")
             pause()
             return None
         
-        print("Berhasil login!")
+        print("✅ Berhasil login!")
         
-        return phone_number, tokens["refresh_token"]
+        return normalized_number, tokens["refresh_token"]
     except Exception as e:
+        print(f"❌ Error during login: {str(e)}")
+        print("💡 Coba lagi dengan nomor yang berbeda atau periksa koneksi internet.")
+        pause()
         return None, None
 
 def show_account_menu():

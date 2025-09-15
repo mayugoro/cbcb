@@ -274,11 +274,29 @@ def get_family(api_key: str, tokens: dict, family_code: str, is_enterprise: bool
     }
     
     res = send_api_request(api_key, path, payload_dict, id_token, "POST")
-    if res.get("status") != "SUCCESS":
-        print(f"Failed to get family {family_code}")
-        print(json.dumps(res, indent=2))
+    
+    # Better error handling
+    if res is None:
+        print(f"❌ Error: No response from server for family code: {family_code}")
         input("Press Enter to continue...")
         return None
+        
+    if isinstance(res, str):
+        print(f"❌ Error: Invalid response format for family code: {family_code}")
+        print(f"Response: {res[:200]}...")  # Show first 200 chars
+        input("Press Enter to continue...")
+        return None
+        
+    if not isinstance(res, dict) or res.get("status") != "SUCCESS":
+        print(f"❌ Error: Failed to get family {family_code}")
+        if isinstance(res, dict):
+            error_msg = res.get("message", "Unknown error")
+            print(f"Error message: {error_msg}")
+        else:
+            print(f"Invalid response format: {str(res)[:200]}...")
+        input("Press Enter to continue...")
+        return None
+        
     # print(json.dumps(res, indent=2))
     return res["data"]
 
