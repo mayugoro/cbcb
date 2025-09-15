@@ -14,8 +14,8 @@ from telegram.ext import (
     ContextTypes
 )
 
-# Load environment variables dari me-cli directory
-env_path = os.path.join(os.path.dirname(__file__), 'me-cli', '.env')
+# Load environment variables (sekarang di direktori yang sama)
+env_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(env_path)
 
 # Configure logging - Clean output
