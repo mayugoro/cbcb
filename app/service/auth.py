@@ -69,6 +69,10 @@ class Auth:
             return True
         return False
 
+    def add_refresh_token(self, number: int, refresh_token: str):
+        """Add refresh token for user (compatibility method)"""
+        return self.add_user(number, refresh_token)
+
     def remove_user(self, number):
         """Remove user from SQLite storage"""
         success = storage.remove_user(number)
@@ -164,6 +168,22 @@ class Auth:
     def get_active_tokens(self):
         """Get active user tokens for API calls"""
         return self.active_user["tokens"] if self.active_user else None
+
+    def load_tokens(self):
+        """Load tokens from SQLite storage (compatibility method)"""
+        # Refresh data from SQLite
+        self.refresh_tokens = storage.get_all_users()
+        
+        # Refresh active user
+        active_user_data = storage.get_active_user()
+        if active_user_data:
+            tokens = get_new_token(active_user_data["refresh_token"])
+            if tokens:
+                self.active_user = {
+                    "number": int(active_user_data["number"]),
+                    "tokens": tokens
+                }
+                self.last_refresh_time = int(time.time())
 
 # Global instance
 AuthInstance = Auth()
