@@ -125,8 +125,13 @@ def main():
         # Logged in
         if active_user is not None:
             balance = get_balance(AuthInstance.api_key, active_user["tokens"]["id_token"])
-            balance_remaining = balance.get("remaining")
-            balance_expired_at = balance.get("expired_at")
+            if balance is not None:
+                balance_remaining = balance.get("remaining")
+                balance_expired_at = balance.get("expired_at")
+            else:
+                # Default values when balance fetch fails
+                balance_remaining = "Unknown"
+                balance_expired_at = "Unknown"
 
             show_main_menu(active_user["number"], balance_remaining, balance_expired_at)
 
