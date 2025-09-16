@@ -238,11 +238,21 @@ def main():
                 fetch_my_packages()
                 continue
             elif choice == "92":
+                print("\n📋 Contoh family code yang valid:")
+                print("   • c5dbcb2d-31cc-462c-afe8-b3a767c6d404 (Addon Akrab)")
+                print("   • d0a349a7-0b3a-4552-bc1d-3fd9ac0a17ee (Bebas Puas)")
+                print("   • 6e469cb2-443d-402f-ba77-681b032ead6a (Akrab Big)")
+                print("💡 Tip: Gunakan menu utama (1-39) untuk paket yang sudah tersedia\n")
                 family_code = input("Enter family code (or '99' to cancel): ")
                 if family_code == "99":
                     continue
                 get_packages_by_family(family_code)
             elif choice == "93":
+                print("\n📋 Contoh family code yang valid:")
+                print("   • c5dbcb2d-31cc-462c-afe8-b3a767c6d404 (Addon Akrab)")
+                print("   • d0a349a7-0b3a-4552-bc1d-3fd9ac0a17ee (Bebas Puas)")
+                print("   • 6e469cb2-443d-402f-ba77-681b032ead6a (Akrab Big)")
+                print("💡 Tip: Gunakan menu utama (1-39) untuk paket yang sudah tersedia\n")
                 family_code = input("Enter family code (or '99' to cancel): ")
                 if family_code == "99":
                     continue

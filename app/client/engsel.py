@@ -292,8 +292,28 @@ def get_family(api_key: str, tokens: dict, family_code: str, is_enterprise: bool
         if isinstance(res, dict):
             error_msg = res.get("message", "Unknown error")
             print(f"Error message: {error_msg}")
+            
+            # Check for specific API errors
+            if error_msg == "HTTP_CLIENT_RESPONSE_ERR":
+                print("\n❌ Family code tidak ditemukan atau tidak valid!")
+                print("📋 Kemungkinan penyebab:")
+                print("   • Family code salah atau typo")
+                print("   • Paket sudah tidak tersedia")
+                print("   • Family code expired")
+                print("   • Family code untuk region lain")
+                print("💡 Saran: Gunakan family code dari menu utama (nomor 1-39)")
         else:
-            print(f"Invalid response format: {str(res)[:200]}...")
+            # Check if it's a known API error in string response
+            if "HTTP_CLIENT_RESPONSE_ERR" in str(res):
+                print("❌ Family code tidak ditemukan atau tidak valid!")
+                print("📋 Kemungkinan penyebab:")
+                print("   • Family code salah atau typo")
+                print("   • Paket sudah tidak tersedia")
+                print("   • Family code expired")
+                print("   • Family code untuk region lain")
+                print("💡 Saran: Gunakan family code dari menu utama (nomor 1-39)")
+            else:
+                print(f"Invalid response format: {str(res)[:200]}...")
         input("Press Enter to continue...")
         return None
         
