@@ -9,6 +9,7 @@ from app.service.auth import AuthInstance
 from app.menus.bookmark import show_bookmark_menu
 from app.menus.account import show_account_menu
 from app.menus.package import fetch_my_packages, get_packages_by_family
+from app.menus.hot import show_hot_menu, show_hot_menu2
 
 def show_popular_packages_menu():
     """Show menu for popular normal packages"""
@@ -184,6 +185,8 @@ def show_main_menu(number, balance, balance_expired_at):
     
     print("--------------------------")
     print("MENU LAINNYA:")
+    print("88. 🔥 Paket HOT 🔥")
+    print("89. 🔥 Paket HOT-2 🔥")
     print("90. Login/Ganti akun")
     print("91. Lihat Paket Saya")
     print("92. Beli Paket Berdasarkan Family Code")
@@ -227,7 +230,11 @@ def main():
                 pass
             
             # Handle other menu options
-            if choice == "90":
+            if choice == "88":
+                show_hot_menu()
+            elif choice == "89":
+                show_hot_menu2()
+            elif choice == "90":
                 selected_user_number = show_account_menu()
                 if selected_user_number:
                     AuthInstance.set_active_user(selected_user_number)
