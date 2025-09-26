@@ -18,11 +18,11 @@ pkg install git -y
 ```
 3. Clone this repo
 ```
-git clone https://github.com/mayugoro/my-bini.git
+git clone https://github.com/mayugoro/cbcb.git
 ```
 4. Open the folder
 ```
-cd my-bini
+cd cbcb
 ```
 5. Setup
 ```
